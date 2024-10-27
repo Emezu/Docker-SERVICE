@@ -13,10 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create .ssh directory
+        run: |
+          mkdir -p ~/.ssh   # Create the .ssh directory if it doesn't exist
+
       - name: Decode SSH Key
         run: |
           echo "${{ secrets.SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set permissions for the private key
 
       - name: Set up SSH
         run: |
