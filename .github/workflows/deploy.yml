@@ -1,4 +1,4 @@
-name: Deploy to Remote Server
+name: Deploy Node.js App
 
 on:
   push:
@@ -11,22 +11,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up SSH
+      - name: Start ssh-agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         run: |
-          docker build -t my-node-service .
-          docker save my-node-service | gzip > my-node-service.tar.gz
-          scp my-node-service.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}
+          docker build -t my-node-app .
 
-      - name: Deploy on remote server
+      - name: Run Docker container
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            docker load < my-node-service.tar.gz
-            docker run -d -p 80:3000 my-node-service
-          EOF
+          docker run -d -p 3000:3000 my-node-app
