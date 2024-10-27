@@ -13,10 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+        run: |
+          eval "$(ssh-agent -s)"   # Start the SSH agent
+          ssh-add ~/.ssh/id_rsa     # Add the private key to the agent
 
       - name: Build and push Docker image
         run: |
